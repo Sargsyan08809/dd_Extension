@@ -12,7 +12,6 @@ const exploreLinks = [
   {emoji: '💰', description: 'I want to lend', option1link: 'https://app.aave.com/', option1name: 'Aave', option2link: 'https://www.morpho.xyz', option2name: 'Morpho'},
   {emoji: '📈', description: 'I want leverage', option1link: 'https://app.gmx.io/#/trade', option1name: 'GMX', option2link: 'https://gains.trade/trading', option2name: 'Gains'},
   {emoji: '🦍', description: 'I want NFTs', option1link: 'https://opensea.io/', option1name: 'OpenSea', option2link: 'https://app.uniswap.org/#/nfts', option2name: 'Uniswap'},
-  /*{emoji: '👨‍🏫', description: 'I want to learn to code', option1link: 'https://cryptozombies.io/', option1name: 'CZombies', option2link: 'https://nodeguardians.io/', option2name: 'NGuardians'},*/
 ];
 
 function Explore(pageProps :ExplorePageProps) {

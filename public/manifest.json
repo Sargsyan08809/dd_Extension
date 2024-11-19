@@ -1,6 +1,6 @@
 {
-  "name": "CryptoHelm",
-  "description": "CryptoHelm detects unverified contracts addresses in dapps and prevents scam and phishing. Web3 Antivirus, NFT and wallet protector",
+  "name": "DD - Fortify Your DeFi",
+  "description": "DD detects unverified contracts addresses in dapps and prevents scam and phishing. Web3 Antivirus, NFT and wallet protector",
   "version": "0.0.0.2",
   "manifest_version": 3,
   "action": {

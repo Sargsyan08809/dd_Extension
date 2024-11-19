@@ -4,10 +4,7 @@ import Logo from './components/Logo';
 import { TypeAnimation } from 'react-type-animation';
 import FadeIn from 'react-fade-in';
 
-
 function Beta(pageProps :BetaPageProps) {
-
-
   useEffect(() => {
     if (localStorage.getItem('betaTest') === 'false') {
       pageProps.setShowBeta(false);
@@ -32,7 +29,7 @@ function Beta(pageProps :BetaPageProps) {
           delay={0}
           transitionDuration={2000}
         >
-          <div>Welcome to CryptoHelm</div>
+          <div>Welcome to DeFi</div>
         </FadeIn>
       </div>
       <br/>

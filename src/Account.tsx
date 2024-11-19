@@ -5,11 +5,9 @@ import Navbar from './components/Navbar';
 import axios from 'axios';
 
 function nameToLogo(name :string){
+  console.log(name,222);
   if (name === 'MetaMask') {
     return 'https://cdn.worldvectorlogo.com/logos/metamask.svg';
-  }
-  if (name === 'Frame Companion') {
-    return 'https://pbs.twimg.com/profile_images/1356250468725510145/Nnzi4nHQ_400x400.jpg';
   }
 }
 
@@ -29,22 +27,18 @@ function Account(pageProps :AccountPageProps) {
     async function readChromeExtensions(){
       const infos = await chrome.management.getAll();
       const metamask = infos.find((info) => info.name === 'MetaMask');
-      const framesh = infos.find((info) => info.name === 'Frame Companion');
       const result = [] as chrome.management.ExtensionInfo[];
       if (metamask) {
         result.push(metamask);
       }
-      if (framesh) {
-        result.push(framesh);
-      }
       setExtensionsToDisplay(result);
     }
     readChromeExtensions();
-    async function readChromeExtensionsVersions(){
-      const res = await axios.get(`${REACT_APP_SERVER_URL}/extensions`);
-      setLatestVersion(res.data);
-    }
-    readChromeExtensionsVersions();
+    // async function readChromeExtensionsVersions(){
+    //   const res = await axios.get(`${REACT_APP_SERVER_URL}/extensions`);
+    //   setLatestVersion(res.data);
+    // }
+    // readChromeExtensionsVersions();
     // get the amount of url scanned by the user from the local storage
     const urlScanned = localStorage.getItem('urls');
     const total = JSON.parse(urlScanned || '[]');

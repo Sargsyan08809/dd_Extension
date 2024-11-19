@@ -8,7 +8,6 @@ export interface PhishingWarningPageProps {
 
 
 export interface AccountPageProps {
-    // navbarProps: NavbarProps;
     tabData : TabData;
     navbarProps: NavbarProps;
 }
@@ -19,7 +18,6 @@ export interface BetaPageProps {
 }
 
 export interface StatPageProps {
-    // navbarProps: NavbarProps;
     tabData : TabData;
     navbarProps: NavbarProps;
     defillamaData: DefillamaData;
@@ -27,7 +25,6 @@ export interface StatPageProps {
 }
 
 export interface ExplorePageProps {
-    // navbarProps: NavbarProps;
     tabData : TabData;
     navbarProps: NavbarProps;
 }
@@ -71,7 +68,6 @@ export interface ContractsPageProps {
 }
 
 export interface AddressCollection {
-    // _id: mongoDB.ObjectId;
     address: string;
     lastUpdated: number;
     isContract: boolean;

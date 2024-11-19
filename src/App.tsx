@@ -9,7 +9,6 @@ import Header from './components/Header';
 import Navbar from './components/Navbar';
 import UnverifiedContracts from './UnverifiedContracts';
 import VerifiedContracts from './VerifiedContracts';
-import FAQ from './FAQ';
 import EOAs from './EOAs';
 import Stats from './Stats';
 import Account from './Account';
@@ -45,7 +44,7 @@ function getAddresses() {
   }
   const uniqueAddresses = new Set(addressesFound);
   const uniqueAddressesArray = Array.from(uniqueAddresses.values());
-  
+
   const scripts = document.getElementsByTagName('script');
   const sources = [] as string[];
   if (scripts !== undefined) {
@@ -62,7 +61,7 @@ function App() {
   // App state
   const [loading, setLoading] = useState<boolean>(true);
   const [indexingNecessary, setIndexingNecessary] = useState<boolean>(false);
-  const [tabData, setTabData] = useState<TabData>({favIconUrl: 'https://i.imgur.com/rao6F5h.png', title: '', url: 'unknown'});
+  const [tabData, setTabData] = useState<TabData>({favIconUrl: 'logo192.png', title: '', url: 'DD - Fortify Your DeFi'});
   const [serverLive, setServerLive] = useState<boolean>(false);
   const [noAddressDetected, setNoAddressDetected] = useState<boolean>(false);
   const [analysisDone, setAnalysisDone] = useState<boolean>(false);
@@ -85,6 +84,7 @@ function App() {
 
   // Data states
   const [allAddressesOfPage, setAllAddresesOfPage] = useState<string[]>([]);
+  console.log(allAddressesOfPage,3333333333333);
   const [verifiedERC20s, setVerifiedERC20s] = useState<TokenListToken[]>([]);
   const [amountToIndex, setAmountToIndex] = useState<number>(0);
   const [others, setOthers] = useState<AddressCollection[]>([]);
@@ -116,7 +116,7 @@ function App() {
     detectPhishing(urlCleaned || '');
     setTabData(newTabData);
     async function getDefillamaData(){
-      const res = await axios.get('https://api.llama.fi/protocols');
+      // const res = await axios.get('https://api.llama.fi/protocols');
       // check if the current url is in the list of dapps
       let urlStripped=urlCleaned;
       if(!urlCleaned?.includes('instadapp.io')){
@@ -127,14 +127,14 @@ function App() {
       urlStripped = urlStripped?.replace('www.','');
       urlStripped = urlStripped?.replace('defi.','');
       console.log('url stripped',urlStripped);
-      for(let i = 0; i < res.data.length; i++){
-        let urlCleaned = res.data[i].url.split('/').slice(0, 3).join('/');
-        urlCleaned = urlCleaned.replace('www.', '');
-        if(urlCleaned == urlStripped){
-          setDappData(res.data[i]);
-          setFoundDappData(true);
-        }
-      }
+      // for(let i = 0; i < res.data.length; i++){
+      //   let urlCleaned = res.data[i].url.split('/').slice(0, 3).join('/');
+      //   urlCleaned = urlCleaned.replace('www.', '');
+      //   if(urlCleaned == urlStripped){
+      //     setDappData(res.data[i]);
+      //     setFoundDappData(true);
+      //   }
+      // }
     }
     getDefillamaData();
   }
@@ -144,11 +144,11 @@ function App() {
       // remove the http or https 
       url = url.replace('https://','');
       url = url.replace('http://','');
-      const res = await axios.get('https://api.cryptoscamdb.org/v1/check/'+url);
-      if(res.data.result.status === 'blocked'){
-        warningPhishingPageProps.description = res.data.result.description;
-        setShowPhishingDetected(true);
-      }
+      // const res = await axios.get('https://api.cryptoscamdb.org/v1/check/'+url);
+      // if(res.data.result.status === 'blocked'){
+      //   warningPhishingPageProps.description = res.data.result.description;
+      //   setShowPhishingDetected(true);
+      // }
     }
     callCryptoScamsDB();
   }
@@ -178,13 +178,15 @@ function App() {
         func: getAddresses,
       },
       () => {
-        // 
+        //
       });
     chrome.runtime.onMessage.addListener(
       function(request) {
         // get cached addresses from the local storage
         const cache = localStorage.getItem('cache');
+        console.log(cache);
         const parsedCache = JSON.parse(cache || '[]');
+        console.log('Addresses',parsedCache);
         if(parsedCache.url === undefined || parsedCache.url !== tabData.url){
           setAllAddresesOfPage(request.innerHtmlAddresses);
           readAllScripts(request.scripts);
@@ -199,7 +201,7 @@ function App() {
     const addressesFound: string[] = [];
     async function fetchReadAndFindAddresses(scripts: string[]){
       for(let i=0; i < scripts.length; i++){
-        // skip script if it comes from a chrome extension
+        // skip script if it comes from a chromes extension
         if(scripts[i].includes('chrome-extension')){
           continue;
         }
@@ -226,6 +228,7 @@ function App() {
     fetchReadAndFindAddresses(scripts);
   }
 
+
   function runAnalysis(addresses : string[]){
     if (addresses.length === 0) {
       setLoading(false);
@@ -236,58 +239,58 @@ function App() {
     setNoAddressDetected(false);
     async function callServer(addresses : string[]) {
       const data = {addresses: addresses, url: tabData.url};
-      const res = await axios.post(`${REACT_APP_SERVER_URL}/analyze`, data);
-      if (res.data.amountToIndex > 0){
+      // const res = await axios.post(`${REACT_APP_SERVER_URL}/analyze`, data);
+      if (data.addresses.length > 0){
         setAnalysisDone(true);
         setLoading(false);
         setIndexingNecessary(true);
-        setAmountToIndex(res.data.amountToIndex);
-        // return;
+        setAmountToIndex(data.addresses.length);
+        return;
       }
-      const sortedUnverifiedContracts = res.data.unverifiedContracts.sort((a :AddressCollection, b :AddressCollection) => {
-        return a.unverifiedon[0] - b.unverifiedon[0];
-      });
-      setUnverifiedContracts(sortedUnverifiedContracts);
-      const sortedVerifiedContracts = res.data.verifiedContracts.sort((a: AddressCollection, b :AddressCollection) => b.verifiedon[0] - a.verifiedon[0]);
-      setVerifiedContracts(sortedVerifiedContracts);
-      const sortedTokensByName = res.data.verifiedERC20s.sort((a: TokenListToken, b :TokenListToken) => a.name.localeCompare(b.name));
-      setVerifiedERC20s(sortedTokensByName);
-      const sortedNfts = res.data.nfts.sort((a: TokenListToken, b :TokenListToken) => a.name.localeCompare(b.name));
-      setNfts(sortedNfts);
-      setChainsWithUnverifiedContracts(getChainsWithUnverifiedContracts(res.data.unverifiedContracts));
-      setOthers(res.data.eoas);
-      const p = (1-(res.data.unverifiedContracts.length / (res.data.verifiedContracts.length + res.data.unverifiedContracts.length)))*100;
-      setPercent(p);
-      setPgColor(percentToColor(p));
+      // const sortedUnverifiedContracts = res.data.unverifiedContracts.sort((a :AddressCollection, b :AddressCollection) => {
+      //   return a.unverifiedon[0] - b.unverifiedon[0];
+      // });
+      // setUnverifiedContracts(sortedUnverifiedContracts);
+      // const sortedVerifiedContracts = res.data.verifiedContracts.sort((a: AddressCollection, b :AddressCollection) => b.verifiedon[0] - a.verifiedon[0]);
+      // setVerifiedContracts(sortedVerifiedContracts);
+      // const sortedTokensByName = res.data.verifiedERC20s.sort((a: TokenListToken, b :TokenListToken) => a.name.localeCompare(b.name));
+      // setVerifiedERC20s(sortedTokensByName);
+      // const sortedNfts = res.data.nfts.sort((a: TokenListToken, b :TokenListToken) => a.name.localeCompare(b.name));
+      // setNfts(sortedNfts);
+      // setChainsWithUnverifiedContracts(getChainsWithUnverifiedContracts(res.data.unverifiedContracts));
+      // setOthers(res.data.eoas);
+      // const p = (1-(res.data.unverifiedContracts.length / (res.data.verifiedContracts.length + res.data.unverifiedContracts.length)))*100;
+      // setPercent(p);
+      // setPgColor(percentToColor(p));
       setLoading(false);
       setAnalysisDone(true);
       // add the url to the local storage
       const urls = JSON.parse(localStorage.getItem('urls') || '[]');
-      let unverifiedContractsFoundSoFar = JSON.parse(localStorage.getItem('unverifiedContractsAmount') || '0');
+      // let unverifiedContractsFoundSoFar = JSON.parse(localStorage.getItem('unverifiedContractsAmount') || '0');
       // check if the url is already in the list
-      if (urls.includes(tabData.url)&&sortedUnverifiedContracts.length !== 0){
-        return;
-      }
+      // if (urls.includes(tabData.url)&&sortedUnverifiedContracts.length !== 0){
+      //   return;
+      // }
       const newUrls = [...urls, tabData.url];
       localStorage.setItem('urls', JSON.stringify(newUrls));
-      unverifiedContractsFoundSoFar = unverifiedContractsFoundSoFar+sortedUnverifiedContracts.length;
-      console.log('setting this in local storage', unverifiedContractsFoundSoFar);
-      localStorage.setItem('unverifiedContractsAmount', JSON.stringify(unverifiedContractsFoundSoFar));
+      // unverifiedContractsFoundSoFar = unverifiedContractsFoundSoFar+sortedUnverifiedContracts.length;
+      // console.log('setting this in local storage', unverifiedContractsFoundSoFar);
+      // localStorage.setItem('unverifiedContractsAmount', JSON.stringify(unverifiedContractsFoundSoFar));
     }
     callServer(addresses);
   }
 
-  async function livenessCheck() {
-    const res = await axios.get(`${REACT_APP_SERVER_URL}/ping`);
-    if (res.data === 'Server is running') {
-      setServerLive(true);
-    }
-  }
+  // async function livenessCheck() {
+  //   const res = await axios.get(`${REACT_APP_SERVER_URL}/ping`);
+  //   if (res.data === 'Server is running') {
+  //     setServerLive(true);
+  //   }
+  // }
 
   function prepareTweet(){
     const chains = getChainsWithUnverifiedContracts(unverifiedContracts);
     const res = 'It%20seems%20'+tabData.url+'%20source%20code%20contains%20'+unverifiedContracts.length+'%20unverified%20contracts%20on%20'+chains.length+'%20different%20chains.%20To%20see%20the%20full%20list,%20download%20the%20Crypto%20Helm%20Chrome%20Extension%20@getcryptohelm.';
-    return 'https://twitter.com/intent/tweet?text='+res; 
+    return 'https://twitter.com/intent/tweet?text='+res;
   }
 
   useEffect(() => {
@@ -310,10 +313,8 @@ function App() {
     if (betaTest === null) {
       setShowBeta(true);
     }
-
     setAppTabs(tabs);
-    livenessCheck();
-    // detectPhishing('metamaskconnect.online');
+    // livenessCheck();
     chrome.tabs && chrome.tabs.query({
     }, (tabs) => {
       const activeTab = tabs.find((tab) => tab.active);
@@ -414,38 +415,30 @@ function App() {
       {showUnverifiedContracts && <UnverifiedContracts {...unverifiedContractPageProps}/>}
       {showVerifiedContracts && <VerifiedContracts {...verifiedContractPageProps}/>}
       {showAccount && <Account {...AccountPageProps}/>}
-      {showFaq && <FAQ {...AccountPageProps}/>}
       {showStats && <Stats {...StatsPageProps}/>}
       {showExplore && <Explore {...ExplorePageProps}/>}
       {showPhishingDetected && <PhishingWarning {...warningPhishingPageProps}/>}
-      {/*showBeta && <Beta {...betaPageProps}/>*/}
       {!showBeta && !showExplore &&!showPhishingDetected && !showStats && !showFaq && !showAccount && !showEOAs && !showVerifiedContracts && !showUnverifiedContracts && !showNfts && !showTokens &&
       <>
-        <body>
+        <div className="w-[360px] h-[560px] relative">
           <Header {...tabData}/>
-          {/* 
-          
-          */}
+
           { noAddressDetected &&
             <Logo/>
           }
-          {loading && 
+          {loading &&
           <>
-            <div className="">
+            <div>
               <Logo/>
             </div>
             <br/>
             <br/>
             <br/>
-            <span className='text-lg ml-10 flex'>Scanning addresses of the page..
-              <img className='h-8 w-8' src={blocksGif}/>
-            </span>
-            
+            <span className='text-lg ml-10 flex'>Scanning addresses of the page..</span>
             <br/>
           </>
           }
-          {/*
-        */}
+
           {!loading && allAddressesOfPage.length == 0 && analysisDone && noAddressDetected &&
           <>
             <div className='flex items-center ml-14'>
@@ -456,7 +449,7 @@ function App() {
             </div>
           </>
           }
-          {/**/}
+
           {!loading && indexingNecessary && analysisDone &&
           <>
             <div className='text-lg font-semibold text-center p-2'>
@@ -469,12 +462,9 @@ function App() {
             </div>
           </>
           }
-          {/*
-          
-          */}
+
           { allAddressesOfPage.length !== 0 && analysisDone &&
           <>
-
             <div className="grid grid-cols-3 gap-0 pb-5">
               <div></div>
               { !loading && !indexingNecessary && percent < 100 &&
@@ -530,7 +520,6 @@ function App() {
               </div>
             </>
             }
-            
             <div className='text-center my-2 mx-2'>
               <dl className="mt-5 grid grid-cols-2 gap-1 sm:grid-cols-3">
                 {unverifiedContracts.length > 0 &&
@@ -545,19 +534,17 @@ function App() {
                   <dd className="mt-1 text-sm font-semibold tracking-tight">{verifiedContracts.length}</dd>
                 </div>
                 }
-                { verifiedERC20s.length > 0 &&
-                  <div className="rounded-md px-4 py-5 sm:p-6 nm-inset-zinc-800 hover:nm-inset-zinc-700-xl" onClick={(e) => {e.preventDefault();setShowTokens(!showTokens);}}> 
-                    <dt className="text-xs ">Verified ERC20s</dt>
+                { verifiedERC20s.length > 0 && (
+                  <div className="rounded-md px-4 py-5 sm:p-6 nm-inset-zinc-800 hover:nm-inset-zinc-700-xl" onClick={(e) => {e.preventDefault(); setShowTokens(!showTokens);}}>
+                    <dt className="text-xs">Verified ERC20s</dt>
                     <dd className="mt-1 text-sm font-semibold tracking-tight">{verifiedERC20s.length}</dd>
-                    <div className='flex'>
-                      {/*
-                      verifiedERC20s.slice(8,15).map((token) => {
-                        return (
-                          <img src={token.logoURI} className="w-3 h-3 mr-0.5" key={token.address}/>);
-                        })*/}
-                    </div>     
+                    <div className="flex">
+                      {verifiedERC20s.slice(8, 15).map((token) => (
+                        <img src={token.logoURI} className="w-3 h-3 mr-0.5" key={token.address} alt={token.name || 'Token logo'}/>
+                      ))}
+                    </div>
                   </div>
-                }
+                )}
                 {nfts.length > 0 &&
                 <div className="rounded-md px-4 py-5 sm:p-6 nm-inset-zinc-800 hover:nm-inset-zinc-700-xl " onClick={(e) => {e.preventDefault();setShowNfts(!showNfts);}}>
                   <dt className="text-xs">NFT addresses</dt>
@@ -575,7 +562,7 @@ function App() {
           </>
           }
           <Navbar {...NavbarProps}/>
-        </body>
+        </div>
       </>
       }
     </>

@@ -1,9 +1,6 @@
 import React from 'react';
 import { NavbarProps } from '../types/types';
 
-
-
-
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -52,17 +49,18 @@ function Navbar(pageProps :NavbarProps) {
 
   return (
     <>
-      <div className='grid grid-cols-4 bg-inherit mt-2'>
+      <div className='fixed border-white w-[360px] top-[460px] flex justify-evenly bg-inherit mt-2'>
         {pageProps.appTabs.map((tab, index) => {
-          return(
+          return (
             <div className='col-span-1' key={index}>
               <tab.icon
                 className={classNames(
                   tab.current ? 'text-white' : 'text-zinc-500',
-                  'h-9 w-9 mx-10 mb-2'
+                  'h-9 w-9 mx-4 mb-2 cursor-pointer'
                 )}
                 aria-hidden="true"
-                onClick={(e) => {e.preventDefault();
+                onClick={(e) => {
+                  e.preventDefault();
                   changeTab(tab.name);
                 }}
               />
